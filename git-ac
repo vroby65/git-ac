@@ -9,11 +9,12 @@ if [ -z "$diff" ]; then
 fi
 
 # Try to generate a commit message with Ollama
-#raw=$(echo "$diff" | ollama run mistral "Write a concise git commit message in English for this diff:" 2>/dev/null)
-raw=$(echo "$diff" | tgpt "Write a concise git commit message in English for this diff:" )
+msg=$(echo "$diff" | ollama run mistral "Write a concise git commit message in English for this diff:" 2>/dev/null)
 
+# Try to generate a commit message with tgpt
+#raw=$(echo "$diff" | tgpt "Write a concise git commit message in English for this diff:" )
 # Clean output: remove "Loading", empty lines, leading spaces
-msg=$(echo "$raw" | sed 's/.*Loading[[:space:]]*//' | sed 's/^[[:space:]]*//' )
+#msg=$(echo "$raw" | sed 's/.*Loading[[:space:]]*//' | sed 's/^[[:space:]]*//' )
 
 if [ $? -ne 0 ] || [ -z "$msg" ]; then
     echo "⚠️ Ollama not available, here is the diff:"
