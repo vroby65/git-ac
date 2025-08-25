@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+git add .
+
+diff=$(git diff --cached)
+if [ -z "$diff" ]; then
+    echo "No changes to commit."
+    exit 0
+fi
+
+# Try to generate a commit message with Ollama
+#raw=$(echo "$diff" | ollama run mistral "Write a concise git commit message in English for this diff:" 2>/dev/null)
+raw=$(echo "$diff" | tgpt "Write a concise git commit message in English for this diff:" )
+
+# Clean output: remove "Loading", empty lines, leading spaces
+msg=$(echo "$raw" | sed 's/.*Loading[[:space:]]*//' | sed 's/^[[:space:]]*//' )
+
+if [ $? -ne 0 ] || [ -z "$msg" ]; then
+    echo "⚠️ Ollama not available, here is the diff:"
+    echo
+    echo "$diff"
+    echo
+    read -p "Write the commit message manually: " msg
+fi
+
+while true; do
+    echo
+    echo "💡 Proposed commit message:"
+    echo "\"$msg\""
+    echo
+    read -p "Confirm commit? [Y/n/e] " choice
+    choice=$(echo "$choice" | tr '[:upper:]' '[:lower:]')
+
+    case "$choice" in
+        ""|"y")
+            git commit -m "$msg"
+            echo "✅ Commit completed."
+            break
+            ;;
+        e)
+            tmp=$(mktemp)
+            echo "$msg" > "$tmp"
+            git commit --dry-run -m "$msg" > /dev/null 2>&1
+            ${EDITOR:-nano} "$tmp"
+            msg=$(cat "$tmp")
+            rm "$tmp"
+            # back to loop
+            ;;
+        n|*)
+            echo "❌ Commit canceled."
+            break
+            ;;
+    esac
+done
