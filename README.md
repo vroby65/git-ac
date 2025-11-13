@@ -2,7 +2,7 @@
 
 A tiny Bash helper that **generates ultra-short Git commit messages** from your staged changes, asks you to confirm/edit, and commits.
 
-- Default engine: **Ollama** with the `mistral` model (local, no cloud).
+- Default engine: **Ollama** with the `gpt-oss:20b-cloud` model (ollama cloud).
 - Alternative engine: **tgpt** (CLI chatbot without API keys).
 - If generation fails, it falls back to **manual input**.
 
@@ -33,14 +33,15 @@ A tiny Bash helper that **generates ultra-short Git commit messages** from your 
 ## Install
 
 1. Save the script as `git-ac` in your repo (or somewhere in `PATH`).
-2. Make it executable:
 
+2. Make it executable:
+   
    ```bash
    chmod +x git-ac
-````
+   ```
 
 3. (Optional) choose the editor used by `e`:
-
+   
    ```bash
    export EDITOR=micro   # or nano, geany, vim, ...
    ```
@@ -50,27 +51,27 @@ A tiny Bash helper that **generates ultra-short Git commit messages** from your 
 ## Using Ollama (default)
 
 1. **Install Ollama**
-
+   
    * Linux/macOS:
-
+     
      ```bash
      curl -fsSL https://ollama.com/install.sh | sh
      ```
-
+     
      ([Ollama][1])
-
+   
    * Windows: download the installer from the official site. ([Ollama][2])
 
 2. **Get the model** (pulled automatically on first run):
-
+   
    ```bash
    ollama run mistral "hello"
    ```
-
+   
    ([Ollama][3])
 
 3. Run the script inside your Git repo:
-
+   
    ```bash
    ./git-ac
    ```
@@ -86,29 +87,29 @@ If you prefer **tgpt** instead of Ollama, install it and swap two lines in the s
 Pick one method (see repo for others):
 
 * Linux/macOS (install script to `/usr/local/bin`):
-
+  
   ```bash
   curl -sSL https://raw.githubusercontent.com/aandrew-me/tgpt/main/install | bash -s /usr/local/bin
   ```
 
 * Homebrew:
-
+  
   ```bash
   brew install tgpt
   ```
 
 * Go:
-
+  
   ```bash
   go install github.com/aandrew-me/tgpt/v2@latest
   ```
 
 * Windows (PowerShell):
-
+  
   ```powershell
   irm https://raw.githubusercontent.com/aandrew-me/tgpt/refs/heads/main/install-win.ps1 | iex
   ```
-
+  
   ([GitHub][4])
 
 ### Minimal code change
@@ -121,13 +122,13 @@ msg=$(ollama run mistral "Write a very short git commit message from:\n$diff")
 
 with the **tgpt** block that also **cleans spinners/fences**:
 
-````bash
+```bash
 raw=$(tgpt "Write ONLY a very short git commit message from:\n$diff")
 msg=$(echo "$raw" | sed 's/.*Loading[[:space:]]*//' | sed 's/^[[:space:]]*//' | sed -n '/^```/{n;:a;/^```/q;p;n;ba}')
-````
+```
 
 > Notes
->
+> 
 > * `tgpt` sometimes prints a “Loading …” spinner or wraps output in \`\`\`\`\` code fences; that one-liner strips both.
 > * Keep the prompt **strict** (“ONLY a very short…”) to avoid verbose outputs.
 
@@ -164,3 +165,4 @@ MIT (for this script). Ollama, models, and tgpt are licensed separately—see th
 [3]: https://ollama.com/library/mistral?utm_source=chatgpt.com "mistral"
 [4]: https://github.com/aandrew-me/tgpt "GitHub - aandrew-me/tgpt: AI Chatbots in terminal without needing API keys"
 [5]: https://github.com/ollama/ollama?utm_source=chatgpt.com "ollama/ollama: Get up and running with OpenAI gpt-oss, ..."
+```
